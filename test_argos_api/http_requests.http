@@ -1,0 +1,7 @@
+@token = {{$oidcAccessToken new clientId:svc-argos-cesar-frontend callbackPort:8000 authorizeEndpoint:https://REPLACE_AUTH_DOMAIN/oauth2/authorize tokenEndpoint:https://auth.sdms.arvato-systems.de/auth/realms/asysid/protocol/openid-connect/token scopes:openid,profile audience:REPLACE_API_AUDIENCE}}
+
+### Get Event Instances
+# @name getOperation
+GET https://api.sdms.arvato-systems.de/argos/storage-base/v2/query/instance/containers?containerTagName=Customer&containerTagValue=Aldi&containerTagValueOperator=LIKE&showTags=Customer,Debitor
+Authorization: Bearer {{token}}
+Content-Type: application/json
