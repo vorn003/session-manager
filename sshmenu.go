@@ -16,6 +16,9 @@ import (
 // Version is set at build time using -ldflags
 var Version = "dev"
 
+const quitLabel = "\u2717 Quit" // ✗
+const backLabel = "\u2190 Back" // ←
+
 // httpGet wraps http.Get for update functionality
 func httpGet(url string) (*http.Response, error) {
 	return http.Get(url)
@@ -258,7 +261,7 @@ Usage:
 			for _, s := range flatServers {
 				serverNames = append(serverNames, s.Name+" - "+s.Description)
 			}
-			serverNames = append(serverNames, "\u23FB Quit") // ⏻ Quit
+			serverNames = append(serverNames, quitLabel)
 
 			// Select server from flat list
 			serverPrompt := promptui.Select{
@@ -279,7 +282,7 @@ Usage:
 				fmt.Println("Prompt failed:", err)
 				return
 			}
-			if sresult == "\u23FB Quit" {
+			if sresult == quitLabel {
 				fmt.Println("Exiting.")
 				return
 			}
@@ -308,10 +311,10 @@ Usage:
 			for _, p := range cfg.Projects {
 				projectNames = append(projectNames, p.Name)
 			}
-			projectNames = append(projectNames, "\u23FB Quit") // ⏻ Quit
+			projectNames = append(projectNames, quitLabel)
 
 			if !printedHelp {
-				fmt.Println("Use ↑/↓ to navigate, Enter to select. Select '⏻ Quit' to exit.")
+				fmt.Println("Use ↑/↓ to navigate, Enter to select. Select '" + quitLabel + "' to exit.")
 				printedHelp = true
 			}
 			projectPrompt := promptui.Select{
@@ -332,7 +335,7 @@ Usage:
 				fmt.Println("Prompt failed:", err)
 				return
 			}
-			if presult == "\u23FB Quit" {
+			if presult == quitLabel {
 				fmt.Println("Exiting.")
 				return
 			}
@@ -345,7 +348,7 @@ Usage:
 			for _, s := range project.Servers {
 				serverNames = append(serverNames, s.Name+" - "+s.Description)
 			}
-			serverNames = append(serverNames, "\u2B05 Back") // ⬅ Back
+			serverNames = append(serverNames, backLabel)
 			for {
 				serverPrompt := promptui.Select{
 					Label:        "Select Server",
@@ -365,7 +368,7 @@ Usage:
 					fmt.Println("Prompt failed:", err)
 					break
 				}
-				if sresult == "\u2B05 Back" {
+				if sresult == backLabel {
 					// Return to project selection
 					goto ProjectSelect
 				}
