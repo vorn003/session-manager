@@ -16,6 +16,9 @@ import (
 // Version is set at build time using -ldflags
 var Version = "dev"
 
+const quitLabel = "\u2717 Quit" // ✗
+const backLabel = "\u2190 Back" // ←
+
 // httpGet wraps http.Get for update functionality
 func httpGet(url string) (*http.Response, error) {
 	return http.Get(url)
@@ -95,9 +98,6 @@ func loadConfig(path string) (*Config, error) {
 }
 
 func main() {
-	// Clear the terminal screen at the start
-	fmt.Print("\033[2J\033[H")
-
 	// Handle --help, --update, --version
 	args := os.Args[1:]
 	if len(args) > 0 {
@@ -220,6 +220,9 @@ Usage:
 		os.Exit(1)
 	}
 
+	// Clear the terminal screen before showing the menu
+	fmt.Print("\033[2J\033[H")
+
 	// Create a bell-filtered writer that wraps the real stdout
 	filteredStdout := bellFilter{w: os.Stdout}
 
@@ -228,9 +231,6 @@ Usage:
 	if len(args) > 0 && args[0] != "--help" && args[0] != "--update" {
 		searchString = strings.Join(args, " ")
 	}
-
-	// Print help line for navigation once per program run (avoid duplicates on Back)
-	printedHelp := false
 
 	for {
 		// Reload config for inplace update
@@ -258,7 +258,7 @@ Usage:
 			for _, s := range flatServers {
 				serverNames = append(serverNames, s.Name+" - "+s.Description)
 			}
-			serverNames = append(serverNames, "\u23FB Quit") // ⏻ Quit
+			serverNames = append(serverNames, quitLabel)
 
 			// Select server from flat list
 			serverPrompt := promptui.Select{
@@ -279,7 +279,7 @@ Usage:
 				fmt.Println("Prompt failed:", err)
 				return
 			}
-			if sresult == "\u23FB Quit" {
+			if sresult == quitLabel {
 				fmt.Println("Exiting.")
 				return
 			}
@@ -308,14 +308,10 @@ Usage:
 			for _, p := range cfg.Projects {
 				projectNames = append(projectNames, p.Name)
 			}
-			projectNames = append(projectNames, "\u23FB Quit") // ⏻ Quit
+			projectNames = append(projectNames, quitLabel)
 
-			if !printedHelp {
-				fmt.Println("Use ↑/↓ to navigate, Enter to select. Select '⏻ Quit' to exit.")
-				printedHelp = true
-			}
 			projectPrompt := promptui.Select{
-				Label:        "Select Project",
+				Label:        "Select Project (↑/↓ navigate, ✗ to quit)",
 				Items:        projectNames,
 				HideHelp:     true,
 				HideSelected: true,
@@ -332,7 +328,7 @@ Usage:
 				fmt.Println("Prompt failed:", err)
 				return
 			}
-			if presult == "\u23FB Quit" {
+			if presult == quitLabel {
 				fmt.Println("Exiting.")
 				return
 			}
@@ -345,7 +341,7 @@ Usage:
 			for _, s := range project.Servers {
 				serverNames = append(serverNames, s.Name+" - "+s.Description)
 			}
-			serverNames = append(serverNames, "\u2B05 Back") // ⬅ Back
+			serverNames = append(serverNames, backLabel)
 			for {
 				serverPrompt := promptui.Select{
 					Label:        "Select Server",
@@ -365,8 +361,7 @@ Usage:
 					fmt.Println("Prompt failed:", err)
 					break
 				}
-				if sresult == "\u2B05 Back" {
-					// Return to project selection
+				if sresult == backLabel {
 					goto ProjectSelect
 				}
 				// Only proceed if a real server was selected
